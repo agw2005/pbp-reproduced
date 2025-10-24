@@ -29,9 +29,12 @@ This repository contains a reproduction attempt for the experiments from the NDS
 
   Tested under various poisoning-ratio and a fixed fine-tuning size of 5% (default), the following data shows that PBP achieves superior performance in purifying backdoor attacks.
   <img width="1820" height="313" alt="image" src="https://github.com/user-attachments/assets/d9f30d70-0331-456f-a527-ec5bede26c99" />
-3. Is PBP effective against backdoor attacks carried out by attackers with varying levels of strength?
-4. Can PBP purify backdoor attacks stably under different fine-tuning assumptions?
-5. How is PBP’s efficiency and sensitivity to its hyperparameters and model architectures?
+  
+2. Is PBP effective against backdoor attacks carried out by attackers with varying levels of strength?
+
+3. Can PBP purify backdoor attacks stably under different fine-tuning assumptions?
+
+4. How is PBP’s efficiency and sensitivity to its hyperparameters and model architectures?
 
 ---
 
