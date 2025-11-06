@@ -1,7 +1,7 @@
 # Reproduced The Novel Fine-tuning Defense Solution From The 2025 NDSS Publication
 
 > **Dung Thuy Nguyen, Ngoc N. Tran, Taylor T. Johnson, Kevin Leach**  
-> *Network and Distributed System Security Symposium (NDSS), 2025*  
+> _Network and Distributed System Security Symposium (NDSS), 2025_  
 > [[Paper](https://arxiv.org/pdf/2412.03441)] | [[Video]()] | [[Original source code](https://github.com/judydnguyen/pbp-backdoor-purification-official)]
 
 ---
@@ -10,160 +10,407 @@
 
 This repository contains a reproduction attempt for the experiments from the NDSS 2025 publication. The project focuses on purifying a malware classifier model that has been breached by a backdoor poisoning attack at differing poisoning-ratios by utilizing a small subset of clean fine-tuning data in order to maintain high accuracy on overall classifier capability whilst reducing the success-rate of the attack.
 
+The pipeline for the reproduction is available in the `pbp_ember_reproduction_3.ipynb`. You'd need to download the dataset and necessary environment yourself.
+
 ---
 
 ### Model Training
+
 - **GPU Infrastructure**: Chameleon Cloud GPU (NVIDIA Quadro RTX 6000) at CHI@UC
 - **Processor Infrastructure**: Chameleon Cloud CPU (Intel(R) Xeon(R) Gold 6126 CPU @ 2.60GHz) at CHI@UC
 - **Platform**: https://chameleoncloud.org/
-- **Dataset**: Ember
-- **Hyperparameter**: 
-  - Poisoning-ratio (0.5%, 1%, 2%, 5%)
-  - Fine-tuning size (10%, 5%, 2%, 1%)
-- **Metric**: 
+- **Dataset**: [Ember-v1](https://zenodo.org/records/14253945?token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6IjlmNjRiOWFkLTIyMWUtNGVmZi04NmJmLTBhODg4YTkxMDJkZiIsImRhdGEiOnt9LCJyYW5kb20iOiI3YzQ5NzhmZTY5YjA1OTZjMjY3NWM2ZmI0ODYyN2U5YiJ9.a4WZjxQa0MdCvLkcgWmN18HM0GDJKYf4mrdiYO-mzz0xxbsu-J6B2uEhNcNyvpEY85Xth1rKEIk85f5ugfvKhA)
+- **Hyperparameter**:
+  - Poisoning-ratio
+  - Fine-tuning size
+  - Alpha (Multiplier for the alignment loss)
+  - Sigma (Multiplier for the gaussian noise covariance)
+  - Architecture (Number of batch normalization layer in a split of 3)
+- **Metric**:
   - C-Acc (Classifier Accuracy)
   - ASR (Attack Success-Rate)
+  - DER (Defense Effectiveness Rate)
 
 ### Results
+
 1. **How well does PBP purify backdoor attacks compared to related fine-tuning methods?**
 
-    Alpha = 0.2 | Sigma = 0.5 | Architecture = 4000/2000/1000
+   Tested under various poisoning-ratio with a fixed fine-tuning size of 10%, alpha of 0.0005, sigma of 2, and 8000/4000/2000 architecture. The following data shows that PBP achieves superior performance in purifying backdoor attacks whilst maintaining the quality of the classifier's accuracy.
 
-    Tested under various poisoning-ratio and a fixed fine-tuning size of 5% (default), the following data shows that PBP achieves superior performance in purifying backdoor attacks whilst maintaining overall classifier accuracy.
-  
-    <table>
-      <tr>
-        <th rowspan="2">Poisoning<br>ratio (%)</th>
-        <th colspan="2">Pre-trained</th>
-        <th colspan="2">FT</th>
-        <th colspan="2">FT-init</th>
-        <th colspan="2">FE-tuning</th>
-        <th colspan="2">LP</th>
-        <th colspan="2">FST</th>
-        <th colspan="2">PBP</th>
-      </tr>
-      <tr>
-        <th>C-Acc</th>
-        <th>ASR</th>
-        <th>C-Acc</th>
-        <th>ASR</th>
-        <th>C-Acc</th>
-        <th>ASR</th>
-        <th>C-Acc</th>
-        <th>ASR</th>
-        <th>C-Acc</th>
-        <th>ASR</th>
-        <th>C-Acc</th>
-        <th>ASR</th>
-        <th>C-Acc</th>
-        <th>ASR</th>
-      </tr>
-      <tr>
-        <td>0.5</td>
-        <td>98.891</td>
-        <td>96.057</td>
-        <td>98.9265</td>
-        <td>93.8695</td>
-        <td>98.9795</td>
-        <td>95.0848</td>
-        <td>98.8865</td>
-        <td>94.8518</td>
-        <td>98.947</td>
-        <td>92.5157</td>
-        <td>98.7685</td>
-        <td>94.8236</td>
-        <td>95.8525</td>
-        <td><strong>26.2152</strong></td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>98.9325</td>
-        <td>96.953</td>
-        <td>98.888</td>
-        <td>95.7123</td>
-        <td>98.97</td>
-        <td>95.4782</td>
-        <td>98.957</td>
-        <td>96.5579</td>
-        <td>98.9615</td>
-        <td>94.0193</td>
-        <td>98.8</td>
-        <td>96.1167</td>
-        <td>96.001</td>
-        <td><strong>27.9202</strong></td>
-      </tr>
-      <tr>
-        <td>2</td>
-        <td>98.882</td>
-        <td>98.357</td>
-        <td>98.9335</td>
-        <td>96.5767</td>
-        <td>98.975</td>
-        <td>96.7089</td>
-        <td>98.901</td>
-        <td>97.1837</td>
-        <td>98.9285</td>
-        <td>96.5847</td>
-        <td>98.867</td>
-        <td>97.3399</td>
-        <td>96.026</td>
-        <td><strong>30.1084</strong></td>
-      </tr>
-      <tr>
-        <td>5</td>
-        <td>98.89</td>
-        <td>99.21</td>
-        <td>98.931</td>
-        <td>98.931</td>
-        <td>98.931</td>
-        <td>98.6371</td>
-        <td>98.871</td>
-        <td>98.7244</td>
-        <td>98.9475</td>
-        <td>98.3852</td>
-        <td>98.8565</td>
-        <td>98.4523</td>
-        <td>95.9555</td>
-        <td><strong>32.5981</strong></td>
-      </tr>
-    </table>
+   <table>
+     <tr>
+       <th rowspan="2">Poisoning<br>ratio (%)</th>
+       <th colspan="2">Pre-trained</th>
+       <th colspan="2">FT</th>
+       <th colspan="2">FT-init</th>
+       <th colspan="2">FE-tuning</th>
+       <th colspan="2">LP</th>
+       <th colspan="2">FST</th>
+       <th colspan="2">PBP</th>
+     </tr>
+     <tr>
+       <th>C-Acc</th>
+       <th>ASR</th>
+       <th>C-Acc</th>
+       <th>ASR</th>
+       <th>C-Acc</th>
+       <th>ASR</th>
+       <th>C-Acc</th>
+       <th>ASR</th>
+       <th>C-Acc</th>
+       <th>ASR</th>
+       <th>C-Acc</th>
+       <th>ASR</th>
+       <th>C-Acc</th>
+       <th>ASR</th>
+     </tr>
+     <tr>
+       <td>0.5</td>
+       <td>99.035</td>
+       <td>94.929</td>
+       <td>98.2675</td>
+       <td>84.1997</td>
+       <td>98.1495</td>
+       <td>84.6257</td>
+       <td>98.2575</td>
+       <td>82.8321</td>
+       <td>99.013</td>
+       <td>91.0921</td>
+       <td>98.223</td>
+       <td>90.4249</td>
+       <td>96.712</td>
+       <td><strong>22.1948</strong></td>
+     </tr>
+     <tr>
+       <td>1</td>
+       <td>99.023</td>
+       <td>96.715</td>
+       <td>98.167</td>
+       <td>79.2161</td>
+       <td>98.3585</td>
+       <td>86.84</td>
+       <td>98.4785</td>
+       <td>82.7101</td>
+       <td>99.0105</td>
+       <td>93.3809</td>
+       <td>98.2635</td>
+       <td>84.6156</td>
+       <td>96.2845</td>
+       <td><strong>37.8198</strong></td>
+     </tr>
+     <tr>
+       <td>2</td>
+       <td>99.0585</td>
+       <td>97.731</td>
+       <td>98.346</td>
+       <td>88.9894</td>
+       <td>98.455</td>
+       <td>86.0232</td>
+       <td>98.0825</td>
+       <td>84.2734</td>
+       <td>99.0315</td>
+       <td>95.6682</td>
+       <td>98.34</td>
+       <td>85.4392</td>
+       <td>96.7175</td>
+       <td><strong>27.4595</strong></td>
+     </tr>
+     <tr>
+       <td>5</td>
+       <td>99.0025</td>
+       <td>99.288</td>
+       <td>98.2925</td>
+       <td>90.9606</td>
+       <td>98.2295</td>
+       <td>87.4317</td>
+       <td>98.377</td>
+       <td>88.2691</td>
+       <td>98.9065</td>
+       <td>98.72</td>
+       <td>98.2935</td>
+       <td>90.4582</td>
+       <td>96.7305</td>
+       <td><strong>21.4143</strong></td>
+     </tr>
+   </table>
 
-  
 2. **Is PBP effective against backdoor attacks carried out by attackers with varying levels of strength?**
 
-    Alpha = 0.2 | Sigma = 0.5 | Architecture = 4000/2000/1000
-    
-    Evaluated across differing poisoning-ratio, PBP shows to be the only fine-tuning strategy that can mitigate the backdoor effect across various attacker-power settings.
+   Evaluated across differing poisoning-ratio with a fixed fine-tuning size of 10%, alpha of 0.0005, sigma of 2, and 8000/4000/2000 architecture PBP shows to be the only fine-tuning strategy that can mitigate the backdoor effect across various attacker-power settings.
 
-    <img width="600" height="371" alt="chart (1)" src="https://github.com/user-attachments/assets/20b5e5d5-faec-4560-a7d3-834eebda09c7" />
+   <table>
+    <tr>
+      <th>Poisoning rate (%)</th>
+      <th>Pre-trained</th>
+      <th>FT</th>
+      <th>FT-Init</th>
+      <th>FE-Tuning</th>
+      <th>LP</th>
+      <th>FST</th>
+      <th>PBP</th>
+    </tr>
+    <tr>
+      <td>0.5</td>
+      <td>94.929</td>
+      <td>84.1997</td>
+      <td>84.6257</td>
+      <td>82.8321</td>
+      <td>91.0921</td>
+      <td>90.4249</td>
+      <td>22.1948</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>96.715</td>
+      <td>79.2161</td>
+      <td>86.84</td>
+      <td>82.7101</td>
+      <td>93.3809</td>
+      <td>84.6156</td>
+      <td>37.8198</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>97.731</td>
+      <td>88.9894</td>
+      <td>86.0232</td>
+      <td>84.2734</td>
+      <td>95.6682</td>
+      <td>85.4392</td>
+      <td>27.4595</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>99.288</td>
+      <td>90.9606</td>
+      <td>87.4317</td>
+      <td>88.2691</td>
+      <td>98.72</td>
+      <td>90.4582</td>
+      <td>21.4143</td>
+    </tr>
+   </table>
+
+   <img width="600" alt="chart (1)" src="public/rq2.png" />
 
 3. **Can PBP purify backdoor attacks stably under different fine-tuning assumptions?**
 
-    Alpha = 0.2 | Sigma = 0.5 | Architecture = 4000/2000/1000
+   Evaluated under different fine-tuning size, from 1% to 10%, each with poisoning-ratios that ranges from 0.5% to 5%. This part of the experiment uses an alpha of 0.0005, sigma of 2, and 8000/4000/2000 architecture. PBP is confirmed to be the most effective and stable approach across different fine-tuning sizes.
 
-    Evaluated under different fine-tuning size, from 1% to 10%, each with poisoning-ratios that ranges from 0.5% to 5%.
-    
-    PBP is confirmed to be the most effective and stable approach across different fine-tuning sizes.
+   <table>
+    <tr>
+      <th>Fine-tuning size (%)</th>
+      <th>Poisoning rate (%)</th>
+      <th>Pre-trained</th>
+      <th>FT</th>
+      <th>FT-Init</th>
+      <th>FE-Tuning</th>
+      <th>LP</th>
+      <th>FST</th>
+      <th>PBP</th>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>0.5</td>
+      <td>94.929</td>
+      <td>84.1997</td>
+      <td>84.6257</td>
+      <td>82.8321</td>
+      <td>91.0921</td>
+      <td>90.4249</td>
+      <td>22.1948</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>1</td>
+      <td>96.715</td>
+      <td>79.2161</td>
+      <td>86.84</td>
+      <td>82.7101</td>
+      <td>93.3809</td>
+      <td>84.6156</td>
+      <td>37.8198</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>2</td>
+      <td>97.731</td>
+      <td>88.9894</td>
+      <td>86.0232</td>
+      <td>84.2734</td>
+      <td>95.6682</td>
+      <td>85.4392</td>
+      <td>27.4595</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>5</td>
+      <td>99.288</td>
+      <td>90.9606</td>
+      <td>87.4317</td>
+      <td>88.2691</td>
+      <td>98.72</td>
+      <td>90.4582</td>
+      <td>21.4143</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>0.5</td>
+      <td>96.568</td>
+      <td>75.6452</td>
+      <td>77.8275</td>
+      <td>75.7138</td>
+      <td>95.2522</td>
+      <td>76.7221</td>
+      <td>9.72058</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>1</td>
+      <td>96.736</td>
+      <td>70.6523</td>
+      <td>83.6809</td>
+      <td>79.6427</td>
+      <td>94.1774</td>
+      <td>78.2655</td>
+      <td>3.36103</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>2</td>
+      <td>97.417</td>
+      <td>79.6504</td>
+      <td>80.1014</td>
+      <td>74.6093</td>
+      <td>95.4156</td>
+      <td>78.5906</td>
+      <td>7.59255</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>5</td>
+      <td>99.448</td>
+      <td>75.4061</td>
+      <td>85.7494</td>
+      <td>82.7234</td>
+      <td>99.1917</td>
+      <td>85.2598</td>
+      <td>9.08375</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>0.5</td>
+      <td>94.513</td>
+      <td>77.8539</td>
+      <td>64.8573</td>
+      <td>65.4701</td>
+      <td>89.6015</td>
+      <td>67.7362</td>
+      <td>43.5304</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>1</td>
+      <td>96.944</td>
+      <td>72.4991</td>
+      <td>60.9719</td>
+      <td>76.6848</td>
+      <td>94.0647</td>
+      <td>69.6781</td>
+      <td>41.297</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>2</td>
+      <td>97.228</td>
+      <td>71.5228</td>
+      <td>66.4682</td>
+      <td>68.086</td>
+      <td>95.3499</td>
+      <td>76.1439</td>
+      <td>35.3881</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>5</td>
+      <td>98.733</td>
+      <td>87.734</td>
+      <td>78.8326</td>
+      <td>73.3853</td>
+      <td>97.5574</td>
+      <td>81.2028</td>
+      <td>62.6674</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>0.5</td>
+      <td>94.056</td>
+      <td>74.4803</td>
+      <td>73.8115</td>
+      <td>68.505</td>
+      <td>87.6955</td>
+      <td>52.79</td>
+      <td>45.3396</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>1</td>
+      <td>95.68</td>
+      <td>75.8717</td>
+      <td>67.2962</td>
+      <td>76.6894</td>
+      <td>90.3283</td>
+      <td>69.9416</td>
+      <td>42.3795</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>2</td>
+      <td>96.893</td>
+      <td>80.951</td>
+      <td>72.0355</td>
+      <td>69.8809</td>
+      <td>92.3143</td>
+      <td>72.7863</td>
+      <td>46.1396</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>5</td>
+      <td>99.158</td>
+      <td>86.08</td>
+      <td>85.7515</td>
+      <td>86.0718</td>
+      <td>98.1851</td>
+      <td>82.2839</td>
+      <td>51.2288</td>
+    </tr>
+   </table>
 
-    <img width="458" height="283" alt="Fine-tuning Size = 1%" src="https://github.com/user-attachments/assets/4dfe6261-a61c-475b-ae5b-1d690d39fd94" />
+   <img width="600" alt="Fine-tuning Size = 10%" src="public/rq3-10.png" />
 
-    <img width="458" height="283" alt="Fine-tuning Size = 2%" src="https://github.com/user-attachments/assets/a47d5e35-590b-486e-aba0-b4d018eccb4f" />
+   <img width="600" alt="Fine-tuning Size = 5%" src="public/rq3-5.png" />
 
-    <img width="458" height="283" alt="Fine-tuning Size = 5%" src="https://github.com/user-attachments/assets/2df70661-9608-4df2-acde-dbcc2efb0e06" />
+   <img width="600" alt="Fine-tuning Size = 2%" src="public/rq3-2.png" />
 
-    <img width="458" height="283" alt="Fine-tuning Size = 10%" src="https://github.com/user-attachments/assets/e9aca412-9050-4977-8149-760e1b1d9eff" />
+   <img width="600" alt="Fine-tuning Size = 1%" src="public/rq3-1.png" />
 
+4. **How is PBP’s efficiency and sensitivity to its hyperparameters and model architectures?**
 
-5. **How is PBP’s efficiency and sensitivity to its hyperparameters and model architectures?**
+   Experimented under differing alpha, sigma, and architecture (number of BN layers). This section of the experiment uses a fixed fine-tuning size of 10% and a poisoning-rate of 0.5%. Although the results seem to be different than what the paper suggests, it could be that I misinterpreted the DER formula. Overall, PBP seems to be stable across different alphas, sigmas, and architectures, performing consistently across both simple and complex model architectures.
 
-    Experimented under differing alpha, sigma, and architecture (number of BN layers).
+    <img width="600" alt="Fine-tuning Size = 1%" src="public/rq4-alpha.png" />
 
-    \<TO BE CONTINUED>
+    <img width="600" alt="Fine-tuning Size = 1%" src="public/rq4-sigma.png" />
+
+    <img width="600" alt="Fine-tuning Size = 1%" src="public/rq4-arch.png" />
 
 ---
 
 ## Acknowledgments
+
 - **Computing Resources**: Chameleon Cloud (CHI@UC) for providing GPU infrastructure
 - **Original Authors**: For making the training code publicly available
 - **NDSS 2025**: For publishing the foundational research
+
 ---
