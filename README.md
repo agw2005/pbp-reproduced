@@ -2,7 +2,7 @@
 
 > **Dung Thuy Nguyen, Ngoc N. Tran, Taylor T. Johnson, Kevin Leach**  
 > _Network and Distributed System Security Symposium (NDSS), 2025_  
-> [[Paper](https://arxiv.org/pdf/2412.03441)] | [[Video]()] | [[Original source code](https://github.com/judydnguyen/pbp-backdoor-purification-official)]
+> [[Paper](https://arxiv.org/pdf/2412.03441)] | [[Video](https://youtu.be/dw7j92mHbJw)] | [[Original source code](https://github.com/judydnguyen/pbp-backdoor-purification-official)]
 
 ---
 
